@@ -26,4 +26,3 @@ However, if you feel like you need to dive deeper, we recommend using [the offic
 
 If you have issues with the Action Item, you can ask for help in the [Community](https://community.theseniordev.com/) or the [Weekly Q&A Sessions](https://calendar.google.com/calendar/u/0?cid=Y19kbGVoajU1Z2prNXZmYmdoYmxtdDRvN3JyNEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t).
 
-### Made with :orange_heart: in Berlin by @TheSeniorDev
