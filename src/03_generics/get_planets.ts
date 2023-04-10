@@ -15,7 +15,8 @@ type Planet = {
     name: string,
     englishName: string,
     isPlanet: boolean,
-    mass: Mass
+    mass: Mass,
+    discoveredBy: string
 }
 
 interface ResponseData{
@@ -46,7 +47,7 @@ getData<ResponseData>(apiUrl).then(data => {
   data.bodies.filter(function(planet) {
     return planet.isPlanet == true
   }).slice(0,15).map(planet => {
-    console.log(planet.englishName + " " + JSON.stringify(planet.mass) + " " + planet.isPlanet)
+    console.log(planet.englishName + " " + JSON.stringify(planet.mass) + " " + planet.isPlanet + " " + planet.discoveredBy)
   })
 })
 
@@ -66,16 +67,39 @@ const calculateTotalMass = (planetList: Planet[]): number => {
   return totalMass;
 };
 
+const mostPlanetDiscoveries = (planetList: Planet[]): string => {
+  let discoveries = new Map()
+  planetList.map((planet) => {
+    if(discoveries.get(planet.discoveredBy)) {
+      let num_discoveries = discoveries.get(planet.discoveredBy)
+      discoveries.set(planet.discoveredBy, num_discoveries + 1)
+    } else {
+      discoveries.set(planet.discoveredBy, 1)
+    }
+  })
+
+  // Sort the map by value in DESC order
+  let sortedDiscoveries = new Map([...discoveries.entries()].sort((a, b) => b[1] - a[1]))
+  const firstElement = Array.from(sortedDiscoveries)[0]
+  return firstElement[0]
+}
+
 const getPlanets = (): Promise<Planet[]> => {
   return got
     .get(apiUrl)
     .json<ResponseData>()
     .then((data) => {
-      return data.bodies.slice(0,3);
+      //return data.bodies.slice(0,3);
+      return data.bodies;
     });
 };
 
 /// just logging the total mass
 getPlanets().then((planetList) =>
   console.log(`Total mass: ${calculateTotalMass(planetList)}`)
+);
+
+// Log most discoveries
+getPlanets().then((planetList) =>
+  console.log(`Most discoveries by: ${mostPlanetDiscoveries(planetList)}`)
 );
