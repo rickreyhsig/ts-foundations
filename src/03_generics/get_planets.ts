@@ -1,19 +1,81 @@
 import got from "got";
 
+type Mass={
+  massValue: number,
+  massExponent: number
+}
+
+type Vol={
+  volValue: number,
+  volExponent: number
+}
+
 type Planet = {
-  id: string,
-  englishName: string
+    id: string,
+    name: string,
+    englishName: string,
+    isPlanet: boolean,
+    mass: Mass
+}
+
+interface ResponseData{
+  bodies: Planet[]
 }
 
 const apiUrl: string = "https://api.le-systeme-solaire.net/rest/bodies/";
 
 // generic function to fetch data
-const getData = async (url:string):Promise<any> => {
-  const data = await got.get(url).json()
+// const getData = async (url:string):Promise<any> => {
+//     const data = await got.get(url).json()
+//     return data
+// }
+
+// generic function to fetch data
+const getData = async <D>(url:string):Promise<D> => {
+  const data = await got.get(url).json<D>()
   return data
 }
 
 // just to check the results in the terminal
-getData(apiUrl).then((planetList) =>
-  console.log(planetList)
+// getData(apiUrl).then((planetList) =>
+//     console.log(planetList)
+// );
+
+getData<ResponseData>(apiUrl).then(data => {
+  // fully typed
+  data.bodies.filter(function(planet) {
+    return planet.isPlanet == true
+  }).slice(0,15).map(planet => {
+    console.log(planet.englishName + " " + JSON.stringify(planet.mass) + " " + planet.isPlanet)
+  })
+})
+
+// our implementation of calculate total mass
+const calculateTotalMass = (planetList: Planet[]): number => {
+  const totalMass = planetList.reduce(
+    (sum: number, plt: Planet): number => {
+        if(plt.mass){
+            return sum + plt.mass?.massValue * 10 ** plt.mass?.massExponent
+        }else{
+            return sum
+        }
+    },
+    0
+  );
+
+  return totalMass;
+};
+
+const getPlanets = (): Promise<Planet[]> => {
+  return got
+    .get(apiUrl)
+    .json<ResponseData>()
+    .then((data) => {
+      return data.bodies.slice(0,3);
+    });
+};
+
+/// just logging the total mass
+getPlanets().then((planetList) =>
+  console.log(`Total mass: ${calculateTotalMass(planetList)}`)
 );
